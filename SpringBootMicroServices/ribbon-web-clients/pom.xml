@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>Ribbon Web Clients</name>
+	<description>Load Balancing Ribbon Web Clients</description>
+	<artifactId>ribbon-web-clients</artifactId>
+	<version>1.0-${revision}</version>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.4.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<integration-tests.skip>false</integration-tests.skip>
+		
+		<service1>eureka-service</service1>
+		<service2>customer-service</service2>
+		<service3>vehicle-service</service3>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-ldap</artifactId>
+		</dependency> -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-client</artifactId>
+			<version>1.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-ribbon</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency> -->
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.7.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.7.0</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Dalston.SR1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>		 
+			<executions>                    
+                <execution>
+                    <id>pre-integration-test</id>
+                    <goals>
+                        <goal>start</goal>
+                    </goals>
+                    <configuration>
+                        <skip>${integration-tests.skip}</skip>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>post-integration-test</id>
+                    <goals>
+                        <goal>stop</goal>
+                    </goals>
+                    <configuration>
+                        <skip>${integration-tests.skip}</skip>
+                    </configuration>
+                </execution>
+            </executions>
+			</plugin>
+			<plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+                 <skip>${integration-tests.skip}</skip>           
+                <includes>
+                    <include>**/*IT.java</include>
+                </includes>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>integration-test</goal>
+                        <goal>verify</goal>
+                    </goals>                        
+                </execution>                    
+            </executions>
+        </plugin>
+			<plugin>
+            <groupId>com.bazaarvoice.maven.plugins</groupId>
+            <artifactId>process-exec-maven-plugin</artifactId>
+            <version>0.7</version>
+            <executions>
+                <!--Start service 1-->
+                <execution>
+                    <id>${service1}</id>
+                    <phase>pre-integration-test</phase>
+                    <goals>
+                        <goal>start</goal>
+                    </goals>
+                    <configuration>
+                        <name>${service1}</name>
+                        <workingDir>../../${service1}</workingDir>
+                        <waitForInterrupt>false</waitForInterrupt>                  
+                        <arguments>
+                            <argument>java</argument>
+                            <argument>-jar</argument>
+                            <argument>../${service1}/target/${service1}-${project.version}.jar</argument>                           
+                        </arguments>
+                    </configuration>
+                </execution>
+                
+                <!--Start service 2-->
+                <execution>
+                    <id>${service2}</id>
+                    <phase>pre-integration-test</phase>
+                    <goals>
+                        <goal>start</goal>
+                    </goals>
+                    <configuration>
+                        <name>${service2}</name>
+                        <workingDir>../../${service2}</workingDir>
+                        <waitForInterrupt>false</waitForInterrupt>                  
+                        <arguments>
+                            <argument>java</argument>
+                            <argument>-jar</argument>
+                            <argument>../${service2}/target/${service2}-${project.version}.jar</argument>                           
+                        </arguments>
+                    </configuration>
+                </execution>
+                
+                <!--Start service 3-->
+                <execution>
+                    <id>${service3}</id>
+                    <phase>pre-integration-test</phase>
+                    <goals>
+                        <goal>start</goal>
+                    </goals>
+                    <configuration>
+                        <name>${service3}</name>
+                        <workingDir>../../${service3}</workingDir>
+                        <waitForInterrupt>false</waitForInterrupt>                  
+                        <arguments>
+                            <argument>java</argument>
+                            <argument>-jar</argument>
+                            <argument>../${service3}/target/${service3}-${project.version}.jar</argument>                           
+                        </arguments>
+                    </configuration>
+                </execution>
+                
+                <!--Stop all processes in reverse order-->
+                <execution>
+                    <id>stop-all</id>
+                    <phase>post-integration-test</phase>
+                    <goals>
+                        <goal>stop-all</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+		</plugins>
+	</build>
+
+	<groupId>com.javabot</groupId>
+</project>

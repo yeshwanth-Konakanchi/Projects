@@ -1,0 +1,100 @@
+package com.crmindz.helpdesk.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.crmindz.helpdesk.DAO.HelpDeskDAOImpl;
+import com.crmindz.helpdesk.entity.Ticket;
+
+@Component
+public class TicketManagementService {
+
+	@Autowired
+	public HelpDeskDAOImpl helpDeskDaoImpl;
+
+	public static String RandomNumber(long number) {
+		
+		long n = (long) (Math.random() * number);
+		
+		return Long.toString(n);
+	}
+
+	public List<Map<String, String>> getTicketCategoryInfo() {
+
+		List<Map<String, String>> ticketCategoryInfo = helpDeskDaoImpl.getTicketcategoryInfo();
+		
+		return ticketCategoryInfo;
+	}
+
+	public List<Map<String, String>> getTicketSubCategoryInfo(String ticketCategoryVal) {
+
+		List<Map<String, String>> ticketSubCategoryInfo = helpDeskDaoImpl.getTicketSubcategoryInfo(ticketCategoryVal);
+		
+		return ticketSubCategoryInfo;
+	}
+
+	public void saveTicketInfo(Ticket ticket, String sessionAttr) {
+		
+		ticket.setTicketReferenceNo(RandomNumber(3000000));
+		
+		helpDeskDaoImpl.saveTicketInfo(ticket, sessionAttr);
+
+	}
+
+	public List<Ticket> getTicketDetails(String userName) {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getTicketDetails(userName);
+
+		return ticketDetails;
+
+	}
+
+	public String getUserType(String userName) {
+
+		String userType = helpDeskDaoImpl.getUserType(userName);
+		
+		return userType;
+	}
+
+	public List<Ticket> getTicketDetailsForEmployee() {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getTicketDetailsForEmployee();
+
+		return ticketDetails;
+
+	}
+
+	public List<Ticket> getApprovedTicketDetailsForEmployee(int ticketID, String comments) {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getApprovedTicketDetailsForEmployee(ticketID, comments);
+
+		return ticketDetails;
+
+	}
+
+	public List<Ticket> getRejectedTicketDetailsForEmployee(int ticketID, String comments) {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getRejectedTicketDetailsForEmployee(ticketID, comments);
+
+		return ticketDetails;
+	}
+
+	public List<Ticket> getApprovedListTicketDetailsForEmployee() {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getApprovedListTicketDetailsForEmployee();
+
+		return ticketDetails;
+	}
+
+	public List<Ticket> getRejectedListTicketDetailsForEmployee() {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getRejectedListTicketDetailsForEmployee();
+
+		return ticketDetails;
+
+	}
+
+}

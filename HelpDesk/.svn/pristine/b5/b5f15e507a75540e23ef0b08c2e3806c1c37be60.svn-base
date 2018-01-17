@@ -1,0 +1,162 @@
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>DashBoard</title>
+<title>Help Desk</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+  
+ .footer {
+   position: absolute;
+   bottom:0;
+   width:100%;
+   height:60px;   /* Height of the footer */
+   background:#808080;
+}
+    center{
+        color: white;
+        
+    }
+    .head{
+    	font-family: serif;
+    	font-style: italic;
+    }
+    
+    .navbar{
+        background-color: #008B8B;
+        
+    }
+    .navbar-brand{
+        color: white;
+    }
+    .dropdown-toggle{
+        color: white;
+    }
+    .home{
+        color: white;
+    }
+        .signOut{
+        color: white;
+    }
+
+    .TM{
+        color: white;
+    }
+    .help{
+        color: white;
+    }
+
+</style>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/redmond/jquery-ui.min.css
+">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.0/css/ui.jqgrid.min.css
+">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js
+"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.0/jquery.jqgrid.min.js"></script>
+<%-- <spring:url value="/resources/js/jqGridTable.js" var="jqueryJs" /> --%>
+<%-- <script src="${jqueryJs}"></script> --%>
+
+<script type="text/javascript">jQuery(document).ready(function() {
+    $("#list").jqGrid({
+        url : "ticketData",
+        datatype : "json",
+        mtype : 'POST',
+        colNames : [ 'Ticket Reference No', 'Ticket Category', 'Ticket Sub-Category', 'Description', 'Status', 'Comments' ],
+        colModel : [ {
+                name : 'ticketReferenceNo',
+                index : 'ticketReferenceNo',
+                width : 100
+        }, {
+                name : 'ticketCategory',
+                index : 'ticketCategory',
+                width : 150,
+                editable : true
+        }, {
+                name : 'ticketSubCategory',
+                index : 'ticketSubCategory',
+                width : 150,
+                editable : true
+        }, {
+                name : 'description',
+                index : 'description',
+                width : 100,
+                editable : true
+        }, {
+                name : 'status',
+                index : 'status',
+                width : 100,
+                editable : true
+        }, {
+            name : 'comments',
+            index : 'comments',
+            width : 100,
+            editable : true
+    } ],
+        pager : '#pager',
+        rowNum : 10,
+        rowList : [ 10, 20, 30 ],
+        sortname : 'invid',
+        sortorder : 'desc',
+        viewrecords : true,
+        gridview : true,
+        caption : 'Data Report',
+        jsonReader : {
+                repeatitems : false,
+        },
+        editurl : "ticketData"
+});
+jQuery("#list").jqGrid('navGrid', '#pager', {
+        edit : true,
+        add : true,
+        del : true,
+        search : true
+});
+});</script>
+
+</head>
+<body>
+
+<header>
+<h2 class="head">Ektha Solutions</h2>
+</header>
+  
+<nav class="navbar">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="helpDesk">Help Desk</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a class= "home" href="home">Home</a></li>
+      <li><a class= "TM" href="dashBoard">Ticket Management</a></li>
+      <li><a class= "help" href="Contact">Contact Us</a></li> 
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a class ="signOut" href="signOut" ><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
+    </ul>
+  </div>  
+</nav>
+
+	<div> <h4 class= "well">Ticket list</h4></div>
+	<div>
+        <table id="list">
+                <tr>
+                        <td />
+                </tr>
+        </table>
+        <div id="pager"></div>
+        <br></br>
+        <p><h4><a href = "raiseTicket">Click here</a> to raise a new ticket</p></h4>
+     </div>
+     
+     <div class="footer">
+        <p ><center>Copyright@Yeshwanth Konakanchi</center></p> 
+    </div>
+</body>
+</html>

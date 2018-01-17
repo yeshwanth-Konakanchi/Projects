@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop-reference-model>
+<aop-project name="ribbon-web-clients"/>
+<aop-project name="vehicle-service"/>
+<aop-project name="customer-service"/>
+<aop-project name="netflix-eureka-server"/>
+<aop-project name="spring-admin-server"/>
+</aop-reference-model>

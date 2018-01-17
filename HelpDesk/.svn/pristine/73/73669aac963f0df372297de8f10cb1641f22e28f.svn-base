@@ -1,0 +1,297 @@
+<%@ page language ="java" contentType ="text/html; charset = ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>    
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+    
+ .footer {
+   bottom:0;
+   width:100%;
+   height:60px;   /* Height of the footer */
+   background:#808080;
+}
+    center{
+        color: white;
+        
+    }
+    .head{
+    	font-family: serif;
+    	font-style: italic;
+    }
+    
+    .navbar{
+        background-color: #008B8B;
+        
+    }
+    .navbar-brand{
+        color: white;
+    }
+    .dropdown-toggle{
+        color: white;
+    }
+    .home{
+        color: white;
+    }
+    .TM{
+        color: white;
+    }
+    .help{
+        color: white;
+    }
+    #submitButton{
+        background-color: #008B8B;
+        color: white;
+    }
+   
+</style>
+</head>
+<body>
+
+<header>
+
+<h2 class="head">Ektha Solutions</h2>
+</header>
+  
+<nav class="navbar">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="homePage">Help Desk</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a class= "home" href="homePage">Home</a></li>
+      <li><a class= "TM" href="dashBoard">Ticket Management</a></li>
+      <li><a class= "help" href="#">Contact Us</a></li> 
+    </ul>
+  </div>  
+</nav>
+	
+	<div class="container">
+	
+	<h3 class="well">Personal Details</h3>
+	
+	<form class="form-horizontal" modelAttribute="user" action = "registration"  method="POST">
+	
+	<div class="form-group">
+      <label class="control-label col-sm-2" for="firstName">first name:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="first name" name="firstName" id="firstName" required>
+      </div>
+    </div>
+    
+    
+	<div class="form-group">
+      <label class="control-label col-sm-2" for="lastName">last name:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="last name" name="lastName" id="lastName" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="phoneNumber">phone number:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="phone number" name="phoneNumber" id="phoneNumber" required>
+      </div>
+    </div>
+	
+	<div class="form-group">
+      <label class="control-label col-sm-2" for="emailId">email Id:</label>
+      <div class="col-sm-4">
+        <input type="email" class="form-control" placeholder="email Id" name="emailId" id="emailId" required>
+      </div>
+    </div>
+    
+    <h3 class="well">Address Information</h3>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="address.addressLine1">address line1:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="address line1" name="address.addressLine1" id="address.addressLine1" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="address.addressLine2">address line2:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="address line2" name="address.addressLine2" id="address.addressLine2" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="address.city">city:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="city" name="address.city" id="address.city" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="address.state">state:</label>
+      <div class="col-sm-4">
+        <select name = "address.state" id="address.state" required >
+        <option>--Select State--</option>
+          			   ${statesDropdown} 
+                    
+                </select>
+      </div>
+    </div>
+    
+     <div class="form-group">
+      <label class="control-label col-sm-2" for="address.zip">zip:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="zip" name="address.zip" id="address.zip" required>
+      </div>
+    </div>
+    
+    <h3 class="well">Login details</h3>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="login.userName">email Id:</label>
+      <div class="col-sm-4">
+        <input type="email" class="form-control" placeholder="email Id" name="login.userName" id="login.userName" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="login.password">password:</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" placeholder="password:" name="login.password" id="login.password" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="login.userType">user type:</label>
+      <div class="col-sm-4">
+        <select name = "login.userType" id="login.userType" required >
+        <option>--Select User Type--</option>
+          			${userTypeDropdown}
+                    
+                </select>
+      </div>
+    </div>
+    
+    <div class="form-group">        
+      <div class="col-sm-offset-2 col-sm-4">
+        <button type="submit" class="btn btn-default" id="submitButton">Submit</button>
+      </div>
+    </div>
+    
+	</form>
+	
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+   <%--  <form class="form-horizontal" modelAttribute="user" action = "registration"  method="POST">
+    
+        <p align="center">${registrationResult}</p>
+        <h3 class="well" align="center">Personal Details</h3>
+       
+        <table align="center">    
+         <tr>    
+          <td>first name : </td> 
+        
+        <td><input name = "firstName" type="text"  id="firstName" placeholder="first name" required/></td>
+            </tr>
+        
+            <tr>    
+          <td>last name : </td>
+        <td><input name = "lastName" type="text"  id="lastName" placeholder="last name" required/></td>
+       </tr>
+            
+        <tr>    
+          <td>phone number : </td>
+        <td><input name = "phoneNumber" type="text"  id="phoneNumber" placeholder="phone number" required/></td>
+        </tr>
+            
+        <tr>    
+          <td>email ID : </td>
+        <td><input name = "emailId" type="email"  id="emailId" placeholder="email ID" required/> </td>
+        </tr>
+         </table>
+        
+        <h3 class="well" align="center">Address Information</h3>
+         <table align="center">  
+            <tr>    
+          <td>address line1 : </td>
+        <td><input name = "address.addressLine1" type="text"  id="address.addressLine1" placeholder="address line1" required/></td>
+        </tr>
+            
+       <tr>    
+          <td>address line2 : </td>
+        <td><input name = "address.addressLine2" type="text"  id="address.addressLine2" placeholder="address line2" required/></td>
+          </tr>
+        
+        <tr>    
+          <td>city : </td>
+        <td><input name = "address.city" type="text"  id="address.city" placeholder="city" required/></td>
+        </tr>
+            
+            <tr>
+           <td>state : </td> 
+          <td><select name = "address.state" id="address.state"  >
+          			 <option>--Select State--</option>
+          			   ${statesDropdown} 
+                    
+                </select></td>
+            
+            <tr>    
+          <td>zip : </td>
+      
+       <td><input name = "address.zip" type="text"  id="address.zip" placeholder="zip" required/></td>
+      </tr>
+      </table>      
+    <h3 class="well" align="center">Login details</h3>
+    <table align="center">
+    
+    	 
+            
+             <tr>    
+          <td>user name : </td>
+   
+         <td><input name = "login.userName" type="email"  id="login.userName" placeholder="email Id" required/></td>
+          </tr>
+            
+          <tr>    
+          <td>password : </td>  
+        <td><input name = "login.password" type="password"  id="login.password" placeholder="password" required/></td>
+        </tr>
+        
+          <tr>
+           <td>state : </td> 
+          <td><select name = "login.userType" id="login.userType" >
+          			<option>--Select User Type--</option>
+          			${userTypeDropdown}
+                    
+        	</tr>
+        	
+            <tr> 
+    
+        <td><button class="submitButton" type="submit" >submit</button> </td>
+        </tr>
+        </table>
+      
+     </form>  --%>  
+     
+  
+
+    <div class="footer">
+        <p ><center>Copyright@Yeshwanth Konakanchi</center></p> 
+    </div>   
+
+
+</body>
+</html>

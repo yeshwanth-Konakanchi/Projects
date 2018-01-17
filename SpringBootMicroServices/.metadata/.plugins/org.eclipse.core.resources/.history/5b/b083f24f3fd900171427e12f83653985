@@ -1,0 +1,41 @@
+#Application Config :reading values from pom.xml
+spring.application.name=@artifactId@
+#Used by Swagger
+info.app.name=@name@ 
+info.app.description=@description@
+info.app.version=@version@
+
+#EMBEDDED SERVER CONFIGURATION (ServerProperties)
+server.port=8081
+
+#Logging Configuration, it will roll the logs up to 7 files by default
+logging.file=logs/${spring.application.name}.log
+logging.level.root=ERROR
+logging.level.com.javabot=INFO
+logging.level.org.hibernate.SQL=DEBUG
+
+#Configuration for service registration with Eureka Server
+eureka.instance.hostname=localhost
+
+eureka.client.serviceUrl.defaultZone=http://localhost:8082/eureka/
+eureka.server.renewalPercentThreshold=0.49
+
+#self registration Configuration
+eureka.client.registerWithEureka: false
+eureka.client.fetchRegistry: false
+
+#Registering with Admin Server for monitoring
+spring.boot.admin.url=http://localhost:8083
+management.security.enabled=false
+spring.boot.admin.username=admin
+spring.boot.admin.password=admin
+
+#Actuator Configuration
+#app shutdown config, to shut down we have to use POST method
+endpoints.shutdown.enabled=true
+endpoints.shutdown.sensitive=false
+endpoints.shutdown.id=shutdown
+
+#BANNER
+banner.charset=UTF-8
+banner.location=banner.txt

@@ -1,0 +1,77 @@
+package com.crmindz.helpdesk.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.crmindz.helpdesk.DAO.HelpDeskDAO;
+import com.crmindz.helpdesk.entity.User;
+
+
+/**
+ * @author Yeshwanth Konakanchi
+ * 
+ * RegistrationService class implements methods to serve the registration functionality of
+ * application
+ * 
+ */
+
+@Component
+public class RegistrationService {
+
+	@Autowired
+	public HelpDeskDAO helpDeskDao;
+	
+
+	/**
+	 * @param user
+	 * @return
+	 * 
+	 * registerUser method register the user and returns the registration result 
+	 * as either success or failure
+	 * 
+	 */
+	
+	public String registerUser(User user) {
+
+		String result = helpDeskDao.registerUser(user);
+		
+		return result;
+
+	}
+	
+	
+
+	/**
+	 * @return
+	 * 
+	 * getStatesInfo method returns the list of states data
+	 * 
+	 */
+	
+	public List<Map<String, String>> getStatesInfo() {
+
+		List<Map<String, String>> statesInfo = helpDeskDao.getStatesInfo();
+		
+		return statesInfo;
+
+	}
+	
+	
+	
+	/**
+	 * @return
+	 * 
+	 * getUserTypeInfo method returns the list of user type data
+	 */
+	
+	public List<Map<String, String>> getUserTypeInfo() {
+
+		List<Map<String, String>> userTypeInfo = helpDeskDao.getUserTypeInfo();
+		
+		return userTypeInfo;
+	}
+
+}

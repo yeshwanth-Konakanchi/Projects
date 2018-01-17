@@ -1,0 +1,399 @@
+package com.crmindz.helpdesk.DAO;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.context.request.SessionScope;
+
+import com.crmindz.helpdesk.entity.Login;
+import com.crmindz.helpdesk.entity.Ticket;
+import com.crmindz.helpdesk.entity.User;
+
+@Repository
+public class HelpDeskDAOImpl implements HelpDeskDAO {
+
+	@Autowired
+	private DataSource dataSource;
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	// public void setDataSource(DataSource dataSource){
+	// this.dataSource=dataSource;
+	// }
+
+	public String registerUser(User user) {
+		// System.out.println(user.getFirstName());
+
+		String query3 = "select userName, password, userType from Login where userName = ?";
+
+		Object[] args3 = new Object[] { user.getLogin().getUserName() };
+
+		List<Login> loginDetails = jdbcTemplate.query(query3, args3, new RowMapper<Login>() {
+			public Login mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Login loginDetails = new Login();
+				loginDetails.setUserName(rs.getString("userName"));
+				loginDetails.setPassword(rs.getString("password"));
+				loginDetails.setUserType(rs.getString("userType"));
+				return loginDetails;
+			}
+
+		});
+
+		if (loginDetails.isEmpty()) {
+			String query = "insert into User (firstName, lastName, phoneNumber, emailId) values (?,?,?,?)";
+
+			Object[] args = new Object[] { user.getFirstName(), user.getLastName(), user.getPhoneNumber(),
+					user.getEmailId() };
+			// jdbcTemplate.update(query, args);
+
+			SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
+			insert.setGeneratedKeyName("User_ID");
+
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("firstName", user.getFirstName());
+			data.put("lastName", user.getLastName());
+			data.put("phoneNumber", user.getPhoneNumber());
+			data.put("emailId", user.getEmailId());
+
+			List<String> columns = new ArrayList();
+			columns.add("firstName");
+			columns.add("lastName");
+			columns.add("phoneNumber");
+			columns.add("emailId");
+
+			insert.setTableName("User");
+			insert.setColumnNames(columns);
+			Number id = insert.executeAndReturnKey(data);
+			System.out.println(id);
+
+			String query1 = "insert into Address (addressLine1, addressLine2, city, state, zip, user_User_ID) values (?,?,?,?,?,?)";
+			Object[] args1 = new Object[] { user.getAddress().getAddressLine1(), user.getAddress().getAddressLine2(),
+					user.getAddress().getCity(), user.getAddress().getState(), user.getAddress().getZip(), id };
+			jdbcTemplate.update(query1, args1);
+
+			String query2 = "insert into Login (userName, password, userType, user_User_ID) values (?,?,?,?)";
+			Object[] args2 = new Object[] { user.getLogin().getUserName(), user.getLogin().getPassword(),
+					user.getLogin().getUserType(), id };
+			
+			jdbcTemplate.update(query2, args2);
+
+			return "Registration Successful, please login to continue";
+			
+		} else {
+
+			return "User name already exists!! ";
+		}
+	}
+
+	public List<Login> getLoginDetails(Login login) {
+
+		String query = "select userName, password, userType from Login where userName = ?";
+
+		Object[] args = new Object[] { login.getUserName() };
+
+		List<Login> loginDetails = jdbcTemplate.query(query, args, new RowMapper<Login>() {
+			public Login mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Login loginDetails = new Login();
+				loginDetails.setUserName(rs.getString("userName"));
+				loginDetails.setPassword(rs.getString("password"));
+				loginDetails.setUserType(rs.getString("userType"));
+				return loginDetails;
+			}
+
+		});
+
+		return loginDetails;
+
+	}
+
+	public List<Map<String, String>> getStatesInfo() {
+		String sql = "select * from states";
+
+		List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(sql);
+		
+		List<Map<String, String>> stateInfo = new ArrayList<Map<String, String>>();
+		
+		for (Map<String, Object> row : resultSet) {
+			Map<String, String> states = new HashMap<String, String>();
+			states.put("value", (String) row.get("stateVal"));
+			states.put("name", (String) row.get("stateName"));
+			stateInfo.add(states);
+		}
+
+		return stateInfo;
+	}
+
+	public List<Map<String, String>> getUserTypeInfo() {
+		String sql = "select * from userType";
+
+		List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(sql);
+		
+		List<Map<String, String>> userInfo = new ArrayList<Map<String, String>>();
+		
+		for (Map<String, Object> row : resultSet) {
+			Map<String, String> userType = new HashMap<String, String>();
+			userType.put("value", (String) row.get("userTypeVal"));
+			userType.put("name", (String) row.get("userType"));
+			userInfo.add(userType);
+		}
+
+		return userInfo;
+	}
+
+	public List<Map<String, String>> getTicketcategoryInfo() {
+		String sql = "select * from ticketCategory";
+
+		List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(sql);
+		
+		List<Map<String, String>> ticketCategory = new ArrayList<Map<String, String>>();
+		
+		for (Map<String, Object> row : resultSet) {
+			Map<String, String> tcktCategory = new HashMap<String, String>();
+			tcktCategory.put("value", (String) row.get("ticketCategoryVal"));
+			tcktCategory.put("name", (String) row.get("ticketCategory"));
+			ticketCategory.add(tcktCategory);
+		}
+
+		return ticketCategory;
+	}
+
+	public List<Map<String, String>> getTicketSubcategoryInfo(String ticketCategoryVal) {
+
+		String sql1 = "select ticketCategoryID from ticketCategory where ticketCategoryVal = ?";
+		
+		int id = jdbcTemplate.queryForObject(sql1, new Object[] { ticketCategoryVal }, Integer.class);
+		
+		String sql = "select * from ticketSubCategory where ticketCategory_ticketCategoryID = ?";
+		
+		Object[] args = new Object[] { id };
+		
+		List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(sql, args);
+		
+		List<Map<String, String>> ticketCategory = new ArrayList<Map<String, String>>();
+		
+		for (Map<String, Object> row : resultSet) {
+			Map<String, String> tcktCategory = new HashMap<String, String>();
+			tcktCategory.put("value", (String) row.get("ticketSubCategoryVal"));
+			tcktCategory.put("name", (String) row.get("ticketSubCategory"));
+			ticketCategory.add(tcktCategory);
+		}
+
+		return ticketCategory;
+	}
+
+	public void saveTicketInfo(Ticket ticket, String sessionAttr) {
+
+		String sql = "select Login_ID from login where userName = ?";
+		int id = jdbcTemplate.queryForObject(sql, new Object[] { sessionAttr }, Integer.class);
+
+		String query = "insert into Ticket (ticketCategory, ticketSubCategory, subject, description, status, ticketReferenceNo, Comments, login_Login_ID) values (?,?,?,?,?,?,?,?)";
+		Object[] args = new Object[] { ticket.getTicketCategory(), ticket.getTicketSubCategory(), ticket.getSubject(),
+				ticket.getDescription(), ticket.getStatus(), ticket.getTicketReferenceNo(), ticket.getComments(), id };
+		jdbcTemplate.update(query, args);
+	}
+
+	public String getFirstName(String userName) {
+
+		String sql = "select user_User_ID from login where userName = ?";
+		int id = jdbcTemplate.queryForObject(sql, new Object[] { userName }, Integer.class);
+
+		String sql1 = "select firstName from user where User_ID = ?";
+		String firstName = jdbcTemplate.queryForObject(sql1, new Object[] { id }, String.class);
+		return firstName;
+
+	}
+
+	public List<Ticket> getTicketDetails(String userName) {
+		
+		String sql = "select Login_ID from login where userName = ?";
+		int id = jdbcTemplate.queryForObject(sql, new Object[] { userName }, Integer.class);
+
+		String query = "select ticketCategory, ticketSubCategory, subject, description, status, ticketReferenceNo, Comments from ticket where login_Login_ID = ?";
+
+		Object[] args = new Object[] { id };
+
+		List<Ticket> ticketDetails = jdbcTemplate.query(query, args, new RowMapper<Ticket>() {
+			public Ticket mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Ticket ticketDetails = new Ticket();
+				ticketDetails.setTicketCategory(rs.getString("ticketCategory"));
+				ticketDetails.setTicketSubCategory(rs.getString("ticketSubCategory"));
+				ticketDetails.setSubject(rs.getString("subject"));
+				ticketDetails.setDescription(rs.getString("description"));
+				ticketDetails.setStatus(rs.getString("status"));
+				ticketDetails.setTicketReferenceNo(rs.getString("ticketReferenceNo"));
+				ticketDetails.setComments(rs.getString("Comments"));
+				return ticketDetails;
+			}
+
+		});
+
+		return ticketDetails;
+	}
+
+	public String getUserType(String userName) {
+
+		String sql = "select userType from login where userName = ?";
+		String userType = jdbcTemplate.queryForObject(sql, new Object[] { userName }, String.class);
+		
+		return userType;
+
+	}
+
+	public List<Ticket> getTicketDetailsForEmployee() {
+
+		String ticketStatus = "pending";
+		String query = "select ticketID, ticketCategory, ticketSubCategory, subject, description, status, ticketReferenceNo, Comments from ticket where status = ?";
+
+		Object[] args = new Object[] { ticketStatus };
+
+		List<Ticket> ticketDetails = jdbcTemplate.query(query, args, new RowMapper<Ticket>() {
+			public Ticket mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Ticket ticketDetails = new Ticket();
+				ticketDetails.setTicketID(rs.getString("ticketID"));
+				ticketDetails.setTicketCategory(rs.getString("ticketCategory"));
+				ticketDetails.setTicketSubCategory(rs.getString("ticketSubCategory"));
+				ticketDetails.setSubject(rs.getString("subject"));
+				ticketDetails.setDescription(rs.getString("description"));
+				ticketDetails.setStatus(rs.getString("status"));
+				ticketDetails.setTicketReferenceNo(rs.getString("ticketReferenceNo"));
+				ticketDetails.setComments(rs.getString("Comments"));
+				return ticketDetails;
+			}
+
+		});
+
+		return ticketDetails;
+
+	}
+
+	public List<Ticket> getApprovedTicketDetailsForEmployee(int ticketID, String comments) {
+
+		String ticketStatus = "approved";
+		
+		String sql = "update Ticket set status = ?, Comments=? where ticketID = ?";
+		jdbcTemplate.update(sql, ticketStatus, comments, ticketID);
+
+		String query = "select ticketID, ticketCategory, ticketSubCategory, subject, description, status, ticketReferenceNo, Comments from ticket where status = ?";
+
+		Object[] args = new Object[] { ticketStatus };
+
+		List<Ticket> ticketDetails = jdbcTemplate.query(query, args, new RowMapper<Ticket>() {
+			public Ticket mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Ticket ticketDetails = new Ticket();
+				ticketDetails.setTicketID(rs.getString("ticketID"));
+				ticketDetails.setTicketCategory(rs.getString("ticketCategory"));
+				ticketDetails.setTicketSubCategory(rs.getString("ticketSubCategory"));
+				ticketDetails.setSubject(rs.getString("subject"));
+				ticketDetails.setDescription(rs.getString("description"));
+				ticketDetails.setStatus(rs.getString("status"));
+				ticketDetails.setTicketReferenceNo(rs.getString("ticketReferenceNo"));
+				ticketDetails.setComments(rs.getString("Comments"));
+				return ticketDetails;
+			}
+
+		});
+
+		return ticketDetails;
+
+	}
+
+	public List<Ticket> getRejectedTicketDetailsForEmployee(int ticketID, String comments) {
+
+		String ticketStatus = "rejected";
+		
+		String sql = "update Ticket set status = ?, Comments=? where ticketID = ?";
+		jdbcTemplate.update(sql, ticketStatus, comments, ticketID);
+
+		String query = "select ticketID, ticketCategory, ticketSubCategory, subject, description, status, ticketReferenceNo, Comments from ticket where status = ?";
+
+		Object[] args = new Object[] { ticketStatus };
+
+		List<Ticket> ticketDetails = jdbcTemplate.query(query, args, new RowMapper<Ticket>() {
+			public Ticket mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Ticket ticketDetails = new Ticket();
+				ticketDetails.setTicketID(rs.getString("ticketID"));
+				ticketDetails.setTicketCategory(rs.getString("ticketCategory"));
+				ticketDetails.setTicketSubCategory(rs.getString("ticketSubCategory"));
+				ticketDetails.setSubject(rs.getString("subject"));
+				ticketDetails.setDescription(rs.getString("description"));
+				ticketDetails.setStatus(rs.getString("status"));
+				ticketDetails.setTicketReferenceNo(rs.getString("ticketReferenceNo"));
+				ticketDetails.setComments(rs.getString("Comments"));
+				return ticketDetails;
+			}
+
+		});
+
+		return ticketDetails;
+	}
+
+	public List<Ticket> getApprovedListTicketDetailsForEmployee() {
+
+		String ticketStatus = "approved";
+		
+		String query = "select ticketID, ticketCategory, ticketSubCategory, subject, description, status, ticketReferenceNo, Comments from ticket where status = ?";
+
+		Object[] args = new Object[] { ticketStatus };
+
+		List<Ticket> ticketDetails = jdbcTemplate.query(query, args, new RowMapper<Ticket>() {
+			public Ticket mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Ticket ticketDetails = new Ticket();
+				ticketDetails.setTicketID(rs.getString("ticketID"));
+				ticketDetails.setTicketCategory(rs.getString("ticketCategory"));
+				ticketDetails.setTicketSubCategory(rs.getString("ticketSubCategory"));
+				ticketDetails.setSubject(rs.getString("subject"));
+				ticketDetails.setDescription(rs.getString("description"));
+				ticketDetails.setStatus(rs.getString("status"));
+				ticketDetails.setTicketReferenceNo(rs.getString("ticketReferenceNo"));
+				ticketDetails.setComments(rs.getString("Comments"));
+				return ticketDetails;
+			}
+
+		});
+
+		return ticketDetails;
+
+	}
+
+	public List<Ticket> getRejectedListTicketDetailsForEmployee() {
+
+		String ticketStatus = "rejected";
+		
+		String query = "select ticketID, ticketCategory, ticketSubCategory, subject, description, status, ticketReferenceNo, Comments from ticket where status = ?";
+
+		Object[] args = new Object[] { ticketStatus };
+
+		List<Ticket> ticketDetails = jdbcTemplate.query(query, args, new RowMapper<Ticket>() {
+			public Ticket mapRow(ResultSet rs, int rowNum) throws SQLException {
+				Ticket ticketDetails = new Ticket();
+				ticketDetails.setTicketID(rs.getString("ticketID"));
+				ticketDetails.setTicketCategory(rs.getString("ticketCategory"));
+				ticketDetails.setTicketSubCategory(rs.getString("ticketSubCategory"));
+				ticketDetails.setSubject(rs.getString("subject"));
+				ticketDetails.setDescription(rs.getString("description"));
+				ticketDetails.setStatus(rs.getString("status"));
+				ticketDetails.setTicketReferenceNo(rs.getString("ticketReferenceNo"));
+				ticketDetails.setComments(rs.getString("Comments"));
+				return ticketDetails;
+			}
+
+		});
+
+		return ticketDetails;
+
+	}
+}

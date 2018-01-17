@@ -1,0 +1,107 @@
+package com.crmindz.helpdesk.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.crmindz.helpdesk.entity.User;
+import com.crmindz.helpdesk.service.RegistrationService;
+
+
+/**
+ * @author Yeshwanth Konakanchi
+ *
+ *RegistrationController class implements methods to serve the registration functionality
+ */
+
+@Controller
+public class RegistrationController {
+
+	@Autowired
+	public RegistrationService registrationService;
+	
+
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @return
+	 * showRegistrationForm methods returns the registration form view to the user
+	 * 
+	 */
+	
+	@RequestMapping("/signUp")
+	public ModelAndView showRegistrationForm(HttpServletRequest request, HttpServletResponse response) {
+
+		String statesDropdown = "";
+		String userTypeDropdown = "";
+
+		List<Map<String, String>> statesInfo = registrationService.getStatesInfo();
+
+		for (Map<String, String> states : statesInfo) {
+			statesDropdown += "<option value='" + states.get("value") + "'>" + states.get("name") + "</option>";
+
+		}
+
+		List<Map<String, String>> userTypeInfo = registrationService.getUserTypeInfo();
+
+		for (Map<String, String> userType : userTypeInfo) {
+			userTypeDropdown += "<option value='" + userType.get("value") + "'>" + userType.get("name") + "</option>";
+
+		}
+
+		ModelAndView modelView = new ModelAndView("registration");
+
+		modelView.addObject("statesDropdown", statesDropdown);
+		modelView.addObject("userTypeDropdown", userTypeDropdown);
+
+		return modelView;
+
+	}
+	
+	
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param user
+	 * @return
+	 * ShowRegistrationResult methods returns a view to indicate whether the registration is 
+	 * success or not
+	 * 
+	 */
+	
+	@RequestMapping("/registration")
+	public ModelAndView ShowRegistrationResult(HttpServletRequest request, HttpServletResponse response,
+			@ModelAttribute("user") User user) {
+
+
+		String registrationResult = registrationService.registerUser(user);
+
+		if ("Registration Successful, please login to continue".equals(registrationResult)) {
+			
+			ModelAndView model = new ModelAndView("registrationSuccess");
+			model.addObject("registrationResult", registrationResult);
+			
+			return model;
+			
+		} else {
+			
+			ModelAndView model = new ModelAndView("registration");
+			model.addObject("registrationResult", registrationResult);
+			
+			return model;
+			
+		}
+
+	}
+
+}

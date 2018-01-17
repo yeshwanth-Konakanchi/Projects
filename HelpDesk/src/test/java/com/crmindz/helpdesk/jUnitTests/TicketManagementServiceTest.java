@@ -1,0 +1,250 @@
+package com.crmindz.helpdesk.jUnitTests;
+
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.crmindz.helpdesk.DAO.HelpDeskDAO;
+import com.crmindz.helpdesk.entity.Ticket;
+import com.crmindz.helpdesk.service.TicketManagementService;
+
+import junit.framework.Assert;
+
+/**
+ * @author Yeshwanth Konakanchi
+ * 
+ *         TicketManagementServiceTest class implements the methods to perform
+ *         unit tests on TicketManagementService Class
+ *
+ */
+
+@RunWith(MockitoJUnitRunner.class)
+public class TicketManagementServiceTest {
+
+	@InjectMocks
+	private TicketManagementService ticketService;
+
+	@Mock
+	private HelpDeskDAO helpDeskDao;
+
+	/**
+	 * getTicketCategoryInfoTest method tests the getTicketCategoryInfo method
+	 * unit in TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getTicketCategoryInfoTest() {
+
+		List<Map<String, String>> ticketCategoryInfo = new ArrayList<Map<String, String>>();
+
+		Map<String, String> ticketCategoryAndValue = new HashMap<String, String>();
+
+		ticketCategoryAndValue.put("colName", "laptop");
+		ticketCategoryAndValue.put("colValue", "laptop");
+
+		ticketCategoryInfo.add(ticketCategoryAndValue);
+
+		when(helpDeskDao.getTicketcategoryInfo()).thenReturn(ticketCategoryInfo);
+
+		Assert.assertEquals(ticketCategoryInfo, ticketService.getTicketCategoryInfo());
+	}
+
+	/**
+	 * getSubTicketCategoryInfoTest method tests the getTicketSubCategoryInfo
+	 * method unit in TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getSubTicketCategoryInfoTest() {
+
+		List<Map<String, String>> ticketSubCategoryInfo = new ArrayList<Map<String, String>>();
+
+		Map<String, String> ticketSubCategoryAndValue = new HashMap<String, String>();
+
+		ticketSubCategoryAndValue.put("colName", "screen");
+		ticketSubCategoryAndValue.put("colValue", "screen");
+
+		ticketSubCategoryInfo.add(ticketSubCategoryAndValue);
+
+		when(helpDeskDao.getTicketSubcategoryInfo(Mockito.anyString())).thenReturn(ticketSubCategoryInfo);
+
+		Assert.assertEquals(ticketSubCategoryInfo, ticketService.getTicketSubCategoryInfo("laptop"));
+	}
+
+	/**
+	 * saveTicketInfoTest method tests the saveTicketInfo method unit in
+	 * TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void saveTicketInfoTest() {
+
+		Mockito.doNothing().when(helpDeskDao).createTicket(Mockito.any(Ticket.class), Mockito.anyString());
+
+		ticketService.createTicket(new Ticket(), "userName");
+
+		Mockito.verify(helpDeskDao, Mockito.times(1)).createTicket(Mockito.any(Ticket.class), Mockito.anyString());
+
+	}
+
+	/**
+	 * getTicketDetailsTest method tests the getTicketDetails method unit in
+	 * TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getTicketDetailsTest() {
+
+		List<Ticket> ticketDetails = new ArrayList<Ticket>();
+
+		Ticket ticket = new Ticket();
+
+		ticket.setTicketCategory("laptop");
+
+		when(helpDeskDao.getTicketDetails(Mockito.anyString())).thenReturn(ticketDetails);
+
+		Assert.assertEquals(ticketDetails, ticketService.getTicketDetails("linga"));
+
+	}
+
+	/**
+	 * getUserTypeTest method tests the getUserType method unit in
+	 * TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getUserTypeTest() {
+
+		String userType = "E";
+
+		when(helpDeskDao.getUserType(Mockito.anyString())).thenReturn(userType);
+
+		Assert.assertEquals(userType, ticketService.getUserType("sam@gmail.com"));
+
+	}
+
+	/**
+	 * getTicketDetailsForEmployeeTest method tests the
+	 * getTicketDetailsForEmployee method unit in TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getTicketDetailsForEmployeeTest() {
+
+		List<Ticket> ticketDetails = new ArrayList<Ticket>();
+
+		Ticket ticket = new Ticket();
+
+		ticket.setTicketCategory("laptop");
+
+		when(helpDeskDao.getTicketDetailsForEmployee()).thenReturn(ticketDetails);
+
+		Assert.assertEquals(ticketDetails, ticketService.getTicketDetailsForEmployee());
+
+	}
+
+	/**
+	 * getApprovedTicketDetailsForEmployeeTest method tests the
+	 * getApprovedTicketDetailsForEmployee method unit in
+	 * TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getApprovedTicketDetailsForEmployeeTest() {
+
+		List<Ticket> ticketDetails = new ArrayList<Ticket>();
+
+		Ticket ticket = new Ticket();
+
+		ticket.setTicketCategory("laptop");
+
+		when(helpDeskDao.getApprovedTicketDetailsForEmployee(Mockito.anyInt(), Mockito.anyString()))
+				.thenReturn(ticketDetails);
+
+		Assert.assertEquals(ticketDetails, ticketService.getApprovedTicketDetailsForEmployee(2, "FaultyScreen"));
+	}
+
+	/**
+	 * getRejectedTicketDetailsForEmployeeTest method tests the
+	 * getRejectedTicketDetailsForEmployee method unit in
+	 * TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getRejectedTicketDetailsForEmployeeTest() {
+
+		List<Ticket> ticketDetails = new ArrayList<Ticket>();
+
+		Ticket ticket = new Ticket();
+
+		ticket.setTicketCategory("laptop");
+
+		when(helpDeskDao.getRejectedTicketDetailsForEmployee(Mockito.anyInt(), Mockito.anyString()))
+				.thenReturn(ticketDetails);
+
+		Assert.assertEquals(ticketDetails, ticketService.getRejectedTicketDetailsForEmployee(2, "FaultyScreen"));
+	}
+
+	/**
+	 * getApprovedListTicketDetailsForEmployeeTest method tests the
+	 * getApprovedListTicketDetailsForEmployee method unit in
+	 * TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getApprovedListTicketDetailsForEmployeeTest() {
+
+		List<Ticket> ticketDetails = new ArrayList<Ticket>();
+
+		Ticket ticket = new Ticket();
+
+		ticket.setTicketCategory("laptop");
+
+		when(helpDeskDao.getApprovedListTicketDetailsForEmployee()).thenReturn(ticketDetails);
+
+		Assert.assertEquals(ticketDetails, ticketService.getApprovedListTicketDetailsForEmployee());
+
+	}
+
+	/**
+	 * getRejectedListTicketDetailsForEmployeeTest method tests the
+	 * getRejectedListTicketDetailsForEmployee method unit in
+	 * TicketManagementService class
+	 * 
+	 */
+
+	@Test
+	public void getRejectedListTicketDetailsForEmployeeTest() {
+
+		List<Ticket> ticketDetails = new ArrayList<Ticket>();
+
+		Ticket ticket = new Ticket();
+
+		ticket.setTicketCategory("laptop");
+
+		when(helpDeskDao.getRejectedListTicketDetailsForEmployee()).thenReturn(ticketDetails);
+
+		Assert.assertEquals(ticketDetails, ticketService.getRejectedListTicketDetailsForEmployee());
+
+	}
+
+}

@@ -1,0 +1,75 @@
+package com.crmindz.helpdesk.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.crmindz.helpdesk.entity.Login;
+import com.crmindz.helpdesk.service.LoginService;
+
+@Controller
+public class LoginController {
+
+	@Autowired
+	private LoginService loginservice;
+
+	@RequestMapping("/login")
+	public ModelAndView showLoginForm(HttpServletRequest request, HttpServletResponse response) {
+
+		return new ModelAndView("login", "login", new Login());
+
+	}
+
+	@RequestMapping(value = "/loginUser", method = RequestMethod.POST)
+	public String login(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			@ModelAttribute("login") Login login, ModelMap modelMap) {
+
+		String validate = loginservice.validateUser(login);
+
+		if ("User name is incorrect!!".equals(validate)) {
+
+			modelMap.put("error", "User name is incorrect!!");
+			return "login";
+
+		} else if ("password is incorrect!!".equals(validate)) {
+
+			modelMap.put("error", "password is incorrect!!");
+			return "login";
+
+		} else {
+
+			request.getSession();
+			session.setAttribute("userName", login.getUserName());
+			String userName = (String) session.getAttribute("userName");
+
+			String userFirstName = loginservice.getFirstName(userName);
+
+			modelMap.put("firstName", userFirstName);
+			return "welcomeUser";
+
+		}
+
+	}
+
+	@RequestMapping(value = "/home")
+	public String home(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			ModelMap modelMap) {
+
+		String userName = (String) session.getAttribute("userName");
+
+		String userFirstName = loginservice.getFirstName(userName);
+
+		modelMap.put("firstName", userFirstName);
+		return "welcomeUser";
+
+	}
+
+}

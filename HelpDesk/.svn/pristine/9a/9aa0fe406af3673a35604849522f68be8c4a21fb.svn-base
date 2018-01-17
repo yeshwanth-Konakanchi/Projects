@@ -1,0 +1,114 @@
+package com.crmindz.helpdesk.jUnitTests;
+
+import com.crmindz.helpdesk.DAO.HelpDeskDAO;
+import com.crmindz.helpdesk.entity.Login;
+import com.crmindz.helpdesk.service.LoginService;
+
+import junit.framework.Assert;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author Yeshwanth Konakanchi
+ * 
+ *         LoginServiceTest class implements the methods to perform unit tests
+ *         on LoginService Class
+ *
+ */
+
+@RunWith(MockitoJUnitRunner.class)
+public class LoginServiceTest {
+
+	@InjectMocks
+	private LoginService loginService;
+
+	@Mock
+	private HelpDeskDAO helpDeskDao;
+
+	/**
+	 * testValidateUserWithValidCredentials method tests the validateUser method
+	 * in LoginSerivice class unit with valid credentials
+	 * 
+	 */
+
+	@Test
+	public void testValidateUserWithValidCredentials() {
+
+		List<Login> loginDetails = new ArrayList<Login>();
+
+		Login login = new Login();
+		login.setPassword("12345");
+		login.setUserName("sam@gmail.com");
+		login.setUserType("E");
+
+		loginDetails.add(login);
+
+		when(helpDeskDao.getLoginDetails(Mockito.any(Login.class))).thenReturn(loginDetails);
+
+		Login loginCredentials = new Login();
+		loginCredentials.setPassword("12345");
+
+		Assert.assertEquals("E", loginService.validateUser(loginCredentials));
+
+	}
+
+	/**
+	 * testValidateUserWithIncorrectPassword method tests validateUser method
+	 * unit in LoginService class with invalid password
+	 * 
+	 */
+
+	@Test
+	public void testValidateUserWithIncorrectPassword() {
+		List<Login> loginDetails = new ArrayList<Login>();
+
+		Login login = new Login();
+		login.setUserName("sam@gmail.com");
+		login.setPassword("12345");
+		loginDetails.add(login);
+
+		when(helpDeskDao.getLoginDetails(Mockito.any(Login.class))).thenReturn(loginDetails);
+
+		Login loginCredentials = new Login();
+		loginCredentials.setUserName("sam@gmail.com");
+		loginCredentials.setPassword("1234");
+
+		Assert.assertEquals("password is incorrect!!", loginService.validateUser(loginCredentials));
+
+	}
+
+	/**
+	 * testValidateUserWithIncorrectUserName method tests validateUser method
+	 * unit in LoginService class with invalid user name
+	 * 
+	 */
+
+	@Test
+	public void testValidateUserWithIncorrectUserName() {
+
+		List<Login> loginDetails = new ArrayList<Login>();
+
+		when(helpDeskDao.getLoginDetails(Mockito.any(Login.class))).thenReturn(loginDetails);
+
+		Login loginCredentials = new Login();
+
+		loginCredentials.setUserName("govinda@gmail.com");
+		loginCredentials.setPassword("12345");
+
+		Assert.assertEquals("User name is incorrect!!", loginService.validateUser(loginCredentials));
+
+	}
+
+}

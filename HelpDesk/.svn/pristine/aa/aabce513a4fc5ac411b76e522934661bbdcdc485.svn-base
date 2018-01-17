@@ -1,0 +1,46 @@
+package com.crmindz.helpdesk.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.crmindz.helpdesk.DAO.HelpDeskDAOImpl;
+import com.crmindz.helpdesk.entity.Login;
+
+@Component
+public class LoginService {
+
+	@Autowired
+	public HelpDeskDAOImpl helpDeskDao;
+
+	public String validateUser(Login login) {
+
+		List<Login> loginDetails = helpDeskDao.getLoginDetails(login);
+
+		if (loginDetails.isEmpty()) {
+			return "User name is incorrect!!";
+		} else {
+
+			if (loginDetails.get(0).getPassword().equals(login.getPassword())) {
+
+				return loginDetails.get(0).getUserType();
+			}
+
+			else {
+				return "password is incorrect!!";
+			}
+
+		}
+
+	}
+
+	public String getFirstName(String userName) {
+
+		String firstName = helpDeskDao.getFirstName(userName);
+		
+		return firstName;
+
+	}
+
+}

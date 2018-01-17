@@ -1,0 +1,359 @@
+package com.crmindz.helpdesk.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.crmindz.helpdesk.entity.Ticket;
+import com.crmindz.helpdesk.entity.User;
+import com.crmindz.helpdesk.service.TicketManagementService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+
+/**
+ * @author Yeshwanth Konakanchi
+ *
+ *TicketManagementController class implements methods that involves with the ticket management of the user
+ */
+
+@Controller
+public class TicketManagementController {
+
+	@Autowired
+	public TicketManagementService ticketService;
+	
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showHelpDeskWelcomePage method returns the help desk home page view
+	 */
+	
+	@RequestMapping(value = "/helpDesk", method = RequestMethod.GET)
+	public String showHelpDeskWelcomePage(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		return "helpDeskWelcome";
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param modelMap
+	 * @return
+	 * showTicketForm method returns the raise ticket form view
+	 */
+	
+	@RequestMapping("/raiseTicket")
+	public ModelAndView showTicketForm(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
+
+		String ticketCategoryDropdown = "";
+
+		List<Map<String, String>> ticketCategoryInfo = ticketService.getTicketCategoryInfo();
+
+		for (Map<String, String> ticketCategory : ticketCategoryInfo) {
+			
+			ticketCategoryDropdown += "<option value='" + ticketCategory.get("value") + "'>"
+					+ ticketCategory.get("name") + "</option>";
+			// System.out.println(ticketCategoryDropdown);
+		}
+
+		ModelAndView modelView = new ModelAndView("ticketRaise");
+		modelView.addObject("ticketCategoryDropDown", ticketCategoryDropdown);
+		// modelMap.put("ticketCategoryDropDown",ticketCategoryDropdown);
+		return modelView;
+
+	}
+	
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param modelMap
+	 * @return
+	 * getTicketSubcategory method returns the ticket sub category drop down based on the ticket category data
+	 * 
+	 */
+	
+	@RequestMapping("/ticketSubCategory")
+	@ResponseBody
+	public String getTicketSubcategory(HttpServletRequest request, HttpServletResponse response, ModelMap modelMap) {
+
+		String ticketCategoryVal = request.getParameter("valAjax");
+		response.setContentType("text/html;charset=UTF-8");
+		String ticketSubCategoryDropdown = "";
+
+		List<Map<String, String>> ticketSubCategoryInfo = ticketService.getTicketSubCategoryInfo(ticketCategoryVal);
+
+		for (Map<String, String> ticketSubCategory : ticketSubCategoryInfo) {
+			
+			ticketSubCategoryDropdown += "<option value='" + ticketSubCategory.get("value") + "'>"
+					+ ticketSubCategory.get("name") + "</option>";
+			// System.out.println(ticketCategoryDropdown);
+		}
+
+		return ticketSubCategoryDropdown;
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showDashBoard method returns the respective ticket dash-board view for the appropriate user 
+	 */
+	
+	@RequestMapping(value = "/dashBoard", method = RequestMethod.GET)
+	public String showDashBoard(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+
+		session = request.getSession(true);
+		
+		//System.out.println(session.getAttribute("userName"));
+		
+		if (session.getAttribute("userName") != null) {
+
+			String userName = (String) session.getAttribute("userName");
+
+			String userType = ticketService.getUserType(userName);
+
+			if ("E".equals(userType)) {
+				
+				return "employeeDashboard";
+				
+			} else {
+				
+				return "dashboard";
+			}
+
+		}
+
+		else {
+			
+			return "ticketManagementError";
+		}
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * signOut method invalidates the session and returns the login form as view
+	 * 
+	 */
+	
+	@RequestMapping("/signOut")
+	public ModelAndView signOut(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+
+		//System.out.println(session.getAttribute("userName"));
+
+		session.invalidate();
+
+		return new ModelAndView("login");
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @param ticketInfo
+	 * @return
+	 * submitTicket method returns the dash-board view to the user after submitting the ticket by user
+	 * 
+	 */
+	
+	@RequestMapping("/submitTicket")
+	public ModelAndView submitTicket(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			@ModelAttribute("ticketInfo") Ticket ticketInfo) {
+
+		ticketInfo.setStatus("pending");
+		ticketInfo.setComments("under review");
+		session= request.getSession(true);
+
+		String sessionAttribute = (String) session.getAttribute("userName");
+		// System.out.println(sessionAttribute);
+		ticketService.saveTicketInfo(ticketInfo, sessionAttribute);
+
+		return new ModelAndView("dashboard");
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showGridData method returns the gridData view to the appropriate consultant or student
+	 */
+	
+	@RequestMapping(value = "/ticketData", method = RequestMethod.POST)
+	public String showGridData(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		 
+		session= request.getSession(true);
+		
+		String userName = (String) session.getAttribute("userName");
+
+		List<Ticket> ticketDetails = ticketService.getTicketDetails(userName);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+		String jsonArray = gson.toJson(ticketDetails);
+
+		String forward = "gridData";
+		request.setAttribute("gridData", jsonArray);
+
+		return forward;
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showGridDataforEmployee method returns the pending tickets grid data for the user as employeeGridData view
+	 */
+	
+	@RequestMapping(value = "/ticketDataForEmployeeGrid", method = RequestMethod.POST)
+	public String showGridDataforEmployee(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		List<Ticket> ticketDetails = ticketService.getTicketDetailsForEmployee();
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(ticketDetails);
+
+		String forward = "employeeGridData";
+
+		request.setAttribute("employeeGridData", jsonArray);
+
+		return forward;
+
+	}
+	
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showApprovedGridDataforEmployee method gets the comments from the employee and
+	 * returns the approved tickets grid data for the user 
+	 */
+	
+	@RequestMapping(value = "/ticketApprove", method = RequestMethod.POST)
+	@ResponseBody
+	public String showApprovedGridDataforEmployee(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		int ticketID = Integer.parseInt(request.getParameter("val"));
+		String comments = request.getParameter("comments");
+		//System.out.println(comments);
+
+		List<Ticket> ticketDetails = ticketService.getApprovedTicketDetailsForEmployee(ticketID, comments);
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(ticketDetails);
+		// String forward = "approvedEmployeeGrid";
+		// request.setAttribute("approvedEmployeeGrid", jsonArray);
+		return jsonArray;
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showRejectedGridDataforEmployee method gets the comments from the employee and returns 
+	 * the rejected tickets grid data for the user 
+	 */
+	
+	@RequestMapping(value = "/ticketReject", method = RequestMethod.POST)
+	@ResponseBody
+	public String showRejectedGridDataforEmployee(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		int ticketID = Integer.parseInt(request.getParameter("val"));
+		String comments = request.getParameter("comments");
+		//System.out.println(comments);
+
+		List<Ticket> ticketDetails = ticketService.getRejectedTicketDetailsForEmployee(ticketID, comments);
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+		String jsonArray = gson.toJson(ticketDetails);
+		// String forward = "approvedEmployeeGrid";
+		// request.setAttribute("approvedEmployeeGrid", jsonArray);
+		return jsonArray;
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showApprovedListGridDataforEmployee returns the approved list ticket data as the approvedEmployeeGrid view
+	 * to the employee
+	 */
+	
+	@RequestMapping(value = "/ticketApproveList", method = RequestMethod.POST)
+	public String showApprovedListGridDataforEmployee(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		List<Ticket> ticketDetails = ticketService.getApprovedListTicketDetailsForEmployee();
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(ticketDetails);
+
+		String forward = "approvedEmployeeGrid";
+		request.setAttribute("approvedEmployeeGrid", jsonArray);
+
+		return forward;
+
+	}
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @return
+	 * showRejectedListGridDataforEmployee returns the rejected list ticket data as the approvedEmployeeGrid view
+	 * to the employee
+	 */
+	
+	@RequestMapping(value = "/ticketRejectList", method = RequestMethod.POST)
+	public String showRejectedListGridDataforEmployee(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) {
+
+		List<Ticket> ticketDetails = ticketService.getRejectedListTicketDetailsForEmployee();
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(ticketDetails);
+
+		String forward = "rejectedEmployeeGrid";
+
+		request.setAttribute("rejectedEmployeeGrid", jsonArray);
+
+		return forward;
+
+	}
+}

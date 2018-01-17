@@ -1,0 +1,164 @@
+package com.crmindz.helpdesk.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.crmindz.helpdesk.entity.LoginDetails;
+import com.crmindz.helpdesk.service.LoginService;
+
+
+
+/**
+ * @author Yeshwanth Konakanchi
+ * 
+ * The LoginController class implements methods that serves the purpose of login
+ * functionality
+ */
+
+@Controller
+public class LoginController {
+
+	@Autowired
+	private LoginService loginservice;
+	
+	
+
+	/**
+	 * @param request
+	 * @param response
+	 * @return
+	 * 
+	 * This method returns the login form view to the user
+	 */
+	
+	@RequestMapping("/login")
+	public ModelAndView showLoginForm(HttpServletRequest request, HttpServletResponse response) {
+
+		return new ModelAndView("login", "login", new LoginDetails());
+
+	}
+	
+	
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @param login
+	 * @param modelMap
+	 * @return
+	 * 
+	 * ShowUserPage method returns the view for the user by validating user credentials
+	 */
+	
+	@RequestMapping(value = "/loginUser", method = RequestMethod.POST)
+	public String showUserPage(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			@ModelAttribute("login") LoginDetails login, ModelMap modelMap) {
+
+		String validate = loginservice.validateUser(login);
+
+		if ("User name is incorrect!!".equals(validate)) {
+
+			modelMap.put("error", "User name is incorrect!!");
+			return "login";
+
+		} else if ("password is incorrect!!".equals(validate)) {
+
+			modelMap.put("error", "password is incorrect!!");
+			
+			return "login";
+
+		} else {
+
+			session= request.getSession(true);
+			session.setAttribute("userName", login.getUserName());
+			String userName = (String) session.getAttribute("userName");
+			//System.out.println(userName);
+			
+			String userFirstName = loginservice.getFirstName(userName);
+
+			modelMap.put("firstName", userFirstName);
+			
+			return "welcomeUser";
+
+		}
+
+	}
+	
+	
+
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @param modelMap
+	 * @return
+	 * 
+	 * showWelcomeUserPage method returns the welcomeUser view when the user clicks on 
+	 * home link after logging in
+	 */
+	
+	@RequestMapping(value = "/home")
+	public String showWelcomeUserPage(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			ModelMap modelMap) {
+		
+		session= request.getSession(true);
+		String userName = (String) session.getAttribute("userName");
+
+		String userFirstName = loginservice.getFirstName(userName);
+
+		modelMap.put("firstName", userFirstName);
+		
+		return "welcomeUser";
+
+	}
+	
+	
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @param modelMap
+	 * @return
+	 * 
+	 * showHomePage method returns the home page if the user clicks on home without logging in
+	 */
+	
+	@RequestMapping(value = "/homePage")
+	public String showHomePage(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			ModelMap modelMap) {
+		
+		return "homePage";
+		
+	}
+	
+	
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @param modelMap
+	 * @return
+	 * 
+	 * showContactPage method returns the contact page as the view
+	 */
+	
+	@RequestMapping(value = "/Contact")
+	public String showContactPage(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+			ModelMap modelMap) {
+		
+		return "Contact";
+	}	
+
+}

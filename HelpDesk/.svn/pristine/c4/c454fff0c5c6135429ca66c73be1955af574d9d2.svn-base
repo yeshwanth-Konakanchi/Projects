@@ -1,0 +1,109 @@
+package com.crmindz.helpdesk.jUnitTests;
+
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.crmindz.helpdesk.DAO.HelpDeskDAO;
+import com.crmindz.helpdesk.entity.Login;
+import com.crmindz.helpdesk.entity.User;
+import com.crmindz.helpdesk.service.RegistrationService;
+
+import junit.framework.Assert;
+
+/**
+ * @author Yeshwanth Konakanchi
+ * 
+ *         RegistrationServiceTest class implements the methods to perform unit
+ *         tests on RegistrationService Class
+ *
+ */
+
+@RunWith(MockitoJUnitRunner.class)
+public class RegistrationServiceTest {
+
+	@InjectMocks
+	private RegistrationService registrationService;
+
+	@Mock
+	private HelpDeskDAO helpDeskDao;
+
+	/**
+	 * registerUserTest method tests the registerTest method unit in the
+	 * RegistrationService class
+	 * 
+	 */
+
+	@Test
+	public void registerUserTest() {
+
+		String result = "registration success";
+
+		when(helpDeskDao.registerUser(Mockito.any(User.class))).thenReturn(result);
+
+		User user = new User();
+
+		user.setFirstName("linga");
+		user.setEmailId("linga@gmail.com");
+
+		Assert.assertEquals("registration success", registrationService.registerUser(user));
+	}
+
+	/**
+	 * getStatesInfoTest method tests the getStatesInfo method unit in the
+	 * RegistrationService class
+	 * 
+	 */
+
+	@Test
+	public void getStatesInfoTest() {
+
+		List<Map<String, String>> statesInfo = new ArrayList<Map<String, String>>();
+
+		Map<String, String> stateAndValue = new HashMap<String, String>();
+
+		stateAndValue.put("ColName", "Missouri");
+		stateAndValue.put("colValue", "MO");
+
+		statesInfo.add(stateAndValue);
+
+		when(helpDeskDao.getStatesInfo()).thenReturn(statesInfo);
+
+		Assert.assertEquals(statesInfo, registrationService.getStatesInfo());
+	}
+
+	/**
+	 * getUserTypeInfoTest method tests the getUserTypeInfo method in unit in
+	 * the RegistrationService class
+	 * 
+	 */
+
+	@Test
+	public void getUserTypeInfoTest() {
+
+		List<Map<String, String>> userTypeInfo = new ArrayList<Map<String, String>>();
+
+		Map<String, String> userTypeAndValue = new HashMap<String, String>();
+
+		userTypeAndValue.put("ColName", "student");
+		userTypeAndValue.put("ColValue", "S");
+
+		userTypeInfo.add(userTypeAndValue);
+
+		when(helpDeskDao.getUserTypeInfo()).thenReturn(userTypeInfo);
+
+		Assert.assertEquals(userTypeInfo, registrationService.getUserTypeInfo());
+
+	}
+
+}

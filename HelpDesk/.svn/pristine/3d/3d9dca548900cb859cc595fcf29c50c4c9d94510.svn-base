@@ -1,0 +1,190 @@
+package com.crmindz.helpdesk.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.crmindz.helpdesk.DAO.HelpDeskDAO;
+import com.crmindz.helpdesk.DAO.HelpDeskDAOImpl;
+import com.crmindz.helpdesk.entity.Ticket;
+
+
+/**
+ * @author Yeshwanth Konakanchi
+ * 
+ *TicketManagementService class implements methods to transfer the data related to ticket Management system
+ *between controller and DAO class
+ */
+
+
+@Component
+public class TicketManagementService {
+
+	@Autowired
+	public HelpDeskDAO helpDeskDaoImpl;
+	
+
+	/**
+	 * @param number
+	 * @return
+	 * 
+	 * RandomNumber method returns a random number as string type
+	 */
+	
+	public static String RandomNumber(long number) {
+		
+		long n = (long) (Math.random() * number);
+		
+		return Long.toString(n);
+	}
+
+	/**
+	 * @return
+	 * 
+	 * getTicketCategoryInfo method returns the list of ticket category info
+	 * 
+	 */
+	
+	public List<Map<String, String>> getTicketCategoryInfo() {
+
+		List<Map<String, String>> ticketCategoryInfo = helpDeskDaoImpl.getTicketcategoryInfo();
+		
+		return ticketCategoryInfo;
+	}
+
+	/**
+	 * @param ticketCategoryVal
+	 * @return
+	 * 
+	 * getTicketSubCategoryInfo method returns the list of ticket sub category info 
+	 * based on the ticket category value
+	 */
+	
+	public List<Map<String, String>> getTicketSubCategoryInfo(String ticketCategoryVal) {
+
+		List<Map<String, String>> ticketSubCategoryInfo = helpDeskDaoImpl.getTicketSubcategoryInfo(ticketCategoryVal);
+		
+		return ticketSubCategoryInfo;
+	}
+
+	/**
+	 * @param ticket
+	 * @param sessionAttr
+	 * 
+	 * saveTicketInfo method sets a random number to ticket reference No and transfers the raised ticket
+	 * data to DAO class for saving the data
+	 */
+	
+	public void saveTicketInfo(Ticket ticket, String sessionAttr) {
+		
+		ticket.setTicketReferenceNo(RandomNumber(3000000));
+		
+		helpDeskDaoImpl.saveTicketInfo(ticket, sessionAttr);
+
+	}
+
+	/**
+	 * @param userName
+	 * @return
+	 * 
+	 * getTicketDetails method returns the list of ticket details based on the user name passed as a parameter
+	 */
+	
+	public List<Ticket> getTicketDetails(String userName) {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getTicketDetails(userName);
+
+		return ticketDetails;
+
+	}
+
+	/**
+	 * @param userName
+	 * @return
+	 * 
+	 * getUserType method returns the user type based on the user name passed as a parameter
+	 */
+	
+	public String getUserType(String userName) {
+
+		String userType = helpDeskDaoImpl.getUserType(userName);
+		
+		return userType;
+	}
+
+	/**
+	 * @return
+	 * 
+	 * getTicketDetailsForEmployee returns the list of pending tickets 
+	 */
+	
+	public List<Ticket> getTicketDetailsForEmployee() {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getTicketDetailsForEmployee();
+
+		return ticketDetails;
+
+	}
+
+	/**
+	 * @param ticketID
+	 * @param comments
+	 * @return
+	 * 
+	 * getApprovedTicketDetailsForEmployee method returns the list of approved tickets based on 
+	 * ticket ID
+	 */
+	
+	public List<Ticket> getApprovedTicketDetailsForEmployee(int ticketID, String comments) {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getApprovedTicketDetailsForEmployee(ticketID, comments);
+
+		return ticketDetails;
+
+	}
+
+	/**
+	 * @param ticketID
+	 * @param comments
+	 * @return
+	 * 
+	 * getRejectedTicketDetailsForEmployee method returns the list of rejected tickets based on
+	 * ticket ID
+	 */
+	public List<Ticket> getRejectedTicketDetailsForEmployee(int ticketID, String comments) {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getRejectedTicketDetailsForEmployee(ticketID, comments);
+
+		return ticketDetails;
+	}
+
+	/**
+	 * @return
+	 * 
+	 * getApprovedListTicketDetailsForEmployee method returns the list of approved ticket details
+	 */
+	
+	public List<Ticket> getApprovedListTicketDetailsForEmployee() {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getApprovedListTicketDetailsForEmployee();
+
+		return ticketDetails;
+	}
+
+	/**
+	 * @return
+	 * 
+	 * getRejectedListTicketDetailsForEmployee method returns the list of rejected ticket details
+	 */
+	
+	public List<Ticket> getRejectedListTicketDetailsForEmployee() {
+
+		List<Ticket> ticketDetails = helpDeskDaoImpl.getRejectedListTicketDetailsForEmployee();
+
+		return ticketDetails;
+
+	}
+
+}

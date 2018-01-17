@@ -1,0 +1,2 @@
+2017-12-05 21:50:26.065  INFO 3968 --- [main] com.javabot.vehicle.VehicleApplication   : No active profile set, falling back to default profiles: default
+2017-12-05 21:50:41.684  INFO 3968 --- [main] com.javabot.vehicle.VehicleApplication   : Started VehicleApplication in 18.27 seconds (JVM running for 20.078)
